@@ -82,9 +82,9 @@ EOF
     sudo systemctl restart kubelet
 
     # Mount other HDD
-    #sudo mkfs.ext4 /dev/sdb
-    #sudo mkdir -p /mnt/disks/sdb
-    #sudo mount /dev/sdb /mnt/disks/sdb
+    sudo mkfs.ext4 /dev/sdc
+    sudo mkdir -p /mnt/disks/sdc
+    sudo mount /dev/sdb /mnt/disks/sdc
 SCRIPT
 
 $configureMaster = <<-SCRIPT
