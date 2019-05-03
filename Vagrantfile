@@ -3,7 +3,7 @@
 
 servers = [
     {
-        :name => "k8s-head",
+        :name => "monster",
         :type => "master",
         :box => "ubuntu/xenial64",
         :box_version => "20180831.0.0",
@@ -12,7 +12,7 @@ servers = [
         :cpu => "2"
     },
     {
-        :name => "k8s-node-1",
+        :name => "delft",
         :type => "node",
         :box => "ubuntu/xenial64",
         :box_version => "20180831.0.0",
@@ -21,11 +21,20 @@ servers = [
         :cpu => "2"
     },
     {
-        :name => "k8s-node-2",
+        :name => "goteborg",
         :type => "node",
         :box => "ubuntu/xenial64",
         :box_version => "20180831.0.0",
         :eth1 => "192.168.205.12",
+        :mem => "2048",
+        :cpu => "2"
+    },
+    {
+        :name => "samos",
+        :type => "node",
+        :box => "ubuntu/xenial64",
+        :box_version => "20180831.0.0",
+        :eth1 => "192.168.205.13",
         :mem => "2048",
         :cpu => "2"
     }
@@ -64,7 +73,8 @@ EOF
     # ip of this box
     IP_ADDR=`ifconfig enp0s8 | grep Mask | awk '{print $2}'| cut -f2 -d:`
     # set node-ip
-    sudo sed -i "/^[^#]*KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IP_ADDR" /etc/default/kubelet
+    sudo touch /etc/default/kubelet
+    sudo echo "KUBELET_EXTRA_ARGS=--node-ip=$IP_ADDR" &>> /etc/default/kubelet
     sudo systemctl restart kubelet
 SCRIPT
 
