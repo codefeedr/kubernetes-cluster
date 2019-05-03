@@ -10,7 +10,7 @@ servers = [
         :eth1 => "192.168.205.10",
         :mem => "2048",
         :cpu => "2",
-        :hdd => "20GB"
+        :hdd => "20"
     },
     {
         :name => "delft",
@@ -20,7 +20,7 @@ servers = [
         :eth1 => "192.168.205.11",
         :mem => "2048",
         :cpu => "2",
-	:hdd => "20GB"
+	:hdd => "20"
     },
     {
         :name => "goteborg",
@@ -30,7 +30,7 @@ servers = [
         :eth1 => "192.168.205.12",
         :mem => "2048",
         :cpu => "2",
-	:hdd => "20GB"
+	:hdd => "20"
     },
     {
         :name => "samos",
@@ -40,7 +40,7 @@ servers = [
         :eth1 => "192.168.205.13",
         :mem => "2048",
         :cpu => "2",
-	:hdd => "20GB"
+	:hdd => "20"
     }
 ]
 
@@ -84,7 +84,7 @@ EOF
     # Mount other HDD
     sudo mkfs.ext4 /dev/sdc
     sudo mkdir -p /mnt/disks/sdc
-    sudo mount /dev/sdb /mnt/disks/sdc
+    sudo mount /dev/sdc /mnt/disks/sdc
 SCRIPT
 
 $configureMaster = <<-SCRIPT
@@ -146,7 +146,7 @@ Vagrant.configure("2") do |config|
                 v.customize ["modifyvm", :id, "--cpus", opts[:cpu]]
 
 		unless File.exists?(disk)
-		  v.customize ['createhd', '--filename', disk, '--variant', 'Fixed', '--size', 20 * 1024]
+		  v.customize ['createhd', '--filename', disk, '--variant', 'Fixed', '--size', Integer(opts[:hdd]) * 1024]
  		end
 		
      		v.customize ['storageattach', :id,
@@ -156,8 +156,6 @@ Vagrant.configure("2") do |config|
 		   '--type', 'hdd',
 		   '--medium', disk]
             end
-	
-	    #config.disksize.size = opts[:hdd]
 
             # we cannot use this because we can't install the docker version we want - https://github.com/hashicorp/vagrant/issues/4871
             #config.vm.provision "docker"
