@@ -9,7 +9,8 @@ servers = [
         :box_version => "20180831.0.0",
         :eth1 => "192.168.205.10",
         :mem => "2048",
-        :cpu => "2"
+        :cpu => "2",
+        :hdd => "20GB"
     },
     {
         :name => "delft",
@@ -18,7 +19,8 @@ servers = [
         :box_version => "20180831.0.0",
         :eth1 => "192.168.205.11",
         :mem => "2048",
-        :cpu => "2"
+        :cpu => "2",
+	:hdd => "20GB"
     },
     {
         :name => "goteborg",
@@ -27,7 +29,8 @@ servers = [
         :box_version => "20180831.0.0",
         :eth1 => "192.168.205.12",
         :mem => "2048",
-        :cpu => "2"
+        :cpu => "2",
+	:hdd => "20GB"
     },
     {
         :name => "samos",
@@ -36,7 +39,8 @@ servers = [
         :box_version => "20180831.0.0",
         :eth1 => "192.168.205.13",
         :mem => "2048",
-        :cpu => "2"
+        :cpu => "2",
+	:hdd => "20GB"
     }
 ]
 
@@ -92,6 +96,11 @@ $configureMaster = <<-SCRIPT
     cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
     chown $(id -u vagrant):$(id -g vagrant) /home/vagrant/.kube/config
 
+    # install Calico pod network addon
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl apply -f https://raw.githubusercontent.com/ecomm-integration-ballerina/kubernetes-cluster/master/calico/rbac-kdd.yaml
+    kubectl apply -f https://raw.githubusercontent.com/ecomm-integration-ballerina/kubernetes-cluster/master/calico/calico.yaml
+
     kubeadm token create --print-join-command >> /etc/kubeadm_join_cmd.sh
     chmod +x /etc/kubeadm_join_cmd.sh
 
@@ -121,11 +130,13 @@ Vagrant.configure("2") do |config|
             config.vm.provider "virtualbox" do |v|
 
                 v.name = opts[:name]
-            	 v.customize ["modifyvm", :id, "--groups", "/CodeFeedr cluster"]
+            	v.customize ["modifyvm", :id, "--groups", "/CodeFeedr cluster"]
                 v.customize ["modifyvm", :id, "--memory", opts[:mem]]
                 v.customize ["modifyvm", :id, "--cpus", opts[:cpu]]
 
             end
+
+	    config.disksize.size = opts[:hdd]
 
             # we cannot use this because we can't install the docker version we want - https://github.com/hashicorp/vagrant/issues/4871
             #config.vm.provision "docker"
