@@ -80,6 +80,11 @@ EOF
     sudo touch /etc/default/kubelet
     sudo echo "KUBELET_EXTRA_ARGS=--node-ip=$IP_ADDR" &>> /etc/default/kubelet
     sudo systemctl restart kubelet
+
+    # Mount other HDD
+    #sudo mkfs.ext4 /dev/sdb
+    #sudo mkdir -p /mnt/disks/sdb
+    #sudo mount /dev/sdb /mnt/disks/sdb
 SCRIPT
 
 $configureMaster = <<-SCRIPT
@@ -132,15 +137,27 @@ Vagrant.configure("2") do |config|
             config.vm.network :private_network, ip: opts[:eth1]
 
             config.vm.provider "virtualbox" do |v|
-
+		
+		disk = opts[:name] + ".vmdk"
+		partition = "/dev/sdb1"
                 v.name = opts[:name]
             	v.customize ["modifyvm", :id, "--groups", "/CodeFeedr cluster"]
                 v.customize ["modifyvm", :id, "--memory", opts[:mem]]
                 v.customize ["modifyvm", :id, "--cpus", opts[:cpu]]
 
+		unless File.exists?(disk)
+		  v.customize ['createhd', '--filename', disk, '--variant', 'Fixed', '--size', 20 * 1024]
+ 		end
+		
+     		v.customize ['storageattach', :id,
+                   '--storagectl', 'SCSI',
+		   '--port' , 2,
+		   '--device', 0,
+		   '--type', 'hdd',
+		   '--medium', disk]
             end
-
-	    config.disksize.size = opts[:hdd]
+	
+	    #config.disksize.size = opts[:hdd]
 
             # we cannot use this because we can't install the docker version we want - https://github.com/hashicorp/vagrant/issues/4871
             #config.vm.provision "docker"
